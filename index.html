@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>লাইভ কোড এডিটর</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css" integrity="sha512-8CgzJcvxUaBIVd+CXNhRmBmenVG8x+ITJ+5YdF9GWNHukN3N5VNbRRpL5pz2Z6VtJRr8yW6usKfM7J+WkV43QQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/material-darker.min.css" integrity="sha512-Lb12BhEDQnd3ADn2Jjms8pmOdtN3RWVkrJhJmzYFULMKeeOYSkKaaw89XzVY0HKFtq+s8bwM/Anf4x4bsdcIAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/fold/foldgutter.min.css" integrity="sha512-Ee6b+qI7j5h8UsmiN7EP94M1Gl8G1L57u8bueivLONP8JcnSvXTztH3s7PMQev4sD0R3a9bVSgahfjaLRzBM7A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/dialog/dialog.min.css" integrity="sha512-JzH19Ie8GzTGFQVWWVODrX0Y+cRjY6Lj9Dj7a7wvkD4cGBY4SUy6pwzNFGxJ7iBWHdoRkqF6r4nCZNL5N8rJYA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="light">
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>লাইভ কোড এডিটর</h1>
+        <p>HTML, CSS, JS একসাথে লিখে মুহূর্তেই প্লে করুন।</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="themeToggle" class="small-btn">ডার্ক/লাইট</button>
+        <button id="fullScreenPreview" class="small-btn">পুরো স্ক্রিন প্রিভিউ</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="editor-panel">
+        <div class="panel-header">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-editor="html" type="button">HTML</button>
+            <button class="tab" data-editor="css" type="button">CSS</button>
+            <button class="tab" data-editor="js" type="button">JS</button>
+          </div>
+          <div class="toolbar">
+            <button id="findBtn" class="small-btn">Find/Replace</button>
+            <button id="undoBtn" class="small-btn">Undo</button>
+            <button id="redoBtn" class="small-btn">Redo</button>
+            <button id="runBtn" class="primary-btn">Run</button>
+            <button id="stopBtn" class="secondary-btn">Stop</button>
+          </div>
+        </div>
+
+        <div class="editor-tabs">
+          <textarea id="htmlEditor"></textarea>
+          <textarea id="cssEditor"></textarea>
+          <textarea id="jsEditor"></textarea>
+        </div>
+
+        <div class="project-manager">
+          <div class="manager-row">
+            <input id="projectName" type="text" placeholder="প্রজেক্ট নাম লিখুন" />
+            <button id="saveProjectBtn" class="small-btn">Save</button>
+            <button id="loadProjectBtn" class="small-btn">Load</button>
+            <button id="deleteProjectBtn" class="small-btn">Delete</button>
+          </div>
+          <div class="project-list" id="projectList"></div>
+        </div>
+
+        <div class="export-row">
+          <button id="downloadHtmlBtn" class="small-btn">Download .html</button>
+          <button id="downloadZipBtn" class="small-btn">Download .zip</button>
+          <button id="codepenBtn" class="small-btn">Export CodePen</button>
+          <button id="jsfiddleBtn" class="small-btn">Export JSFiddle</button>
+        </div>
+      </section>
+
+      <section class="preview-panel">
+        <div class="panel-header preview-header">
+          <h2>Preview</h2>
+          <div class="preview-controls">
+            <button data-device="mobile" class="device-btn">360px</button>
+            <button data-device="tablet" class="device-btn">768px</button>
+            <button data-device="desktop" class="device-btn active">Desktop</button>
+          </div>
+        </div>
+
+        <div class="preview-frame-holder device-desktop">
+          <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+          <div id="previewOverlay" class="preview-overlay hidden"></div>
+        </div>
+        <div class="preview-footer">
+          <span id="previewStatus">Ready to run</span>
+        </div>
+      </section>
+    </main>
+
+    <section class="console-panel">
+      <div class="panel-header">
+        <h2>Console</h2>
+        <button id="clearConsoleBtn" class="small-btn">Clear</button>
+      </div>
+      <div id="consoleOutput" class="console-output"></div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js" integrity="sha512-5hZ6FBWKJ3D9n9yKsjg+e3t9p4v5fL7VtWf6o7pOI31dM/vvleFm9XyJ4uROpj38mlwQCpMnIUXk+lqUaM+qDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js" integrity="sha512-0KEprrcdT7PUhHt8kuydP2paGXXnSj8b8dAyE/AkdMDbIkA9656bRF5o6phJqR0BPq6zXvVPNfGuh3eA2N/gdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/javascript/javascript.min.js" integrity="sha512-vvCZQGzpsxo8sENn6y0iQEcYc/3eQxfZxBftvCMWBBsISduQkCSKcFzU2aWtHrQXrbG+jK8fYPc7nY5FsPvFYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/css/css.min.js" integrity="sha512-2CrY/arahJAOzzilQ0vQisscZjQhRmjHQ8pP1N+n1QXCPyHS1hym/JQRQgHnBqbtiYxGaJS0xq1h2maB4fZyMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-r+2C8GQ12K8mS7fySVre1e1AmJgdoXqfPZewk/xZxV7M8ieKZ7qQ5UHJ+8XGrvFju0V6fjMSDfrqG7Ym3G0KTA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/closebrackets.min.js" integrity="sha512-3NkefhDFWGt9sF3gqI73d9q3Kyp0wzdXovfjxuqqqQBdKi8mA3NL+37+E9NPTYkK4fZ3uJDiLQkMxfUuGwW5Hg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/matchbrackets.min.js" integrity="sha512-5HtNQwgRjV9hJuv8n9KfJuv0mzp7IUp/BSVOEAjpuN4w0x1d0C7yxVuKa5E8U07B1U1kPcTzzWJ4qAhyKC01LA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/comment/comment.min.js" integrity="sha512-R5fonf2hL6nPPSUF8Vv3VODrX0Y+cRjY6Lj9Dj7a7wvkD4cGBY4SUy6pwzNFGxJ7iBWHdoRkqF6r4nCZNL5N8rJYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/fold/foldcode.min.js" integrity="sha512-vgmgfZ3jonQQF0S/uNwB0UQyLCm/2A0R+Z0e09l0h2oVjGV6e5sBffiTpModE7QeVTyrqzM8Kc9Be5SzMUK+xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/fold/foldgutter.min.js" integrity="sha512-Ee6b+qI7j5h8UsmiN7EP94M1Gl8G1L57u8bueivLONP8JcnSvXTztH3s7PMQev4sD0R3a9bVSgahfjaLRzBM7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/fold/brace-fold.min.js" integrity="sha512-rm83Fp/7M+V8drwc4wu1J/4FIXU0XIW3uO3r1gU0vcwVdNlzcf0RRJokDxpZtsDW/45wY+k954CqvU8FhRrjKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/search/search.min.js" integrity="sha512-M1Ldk4m2SlAAm4BTKhKum4a9pI9xilJAfvxa4OLqkOhXWCp5A1bzV6QKxQjnc2skDtOj8w4JTcEwX8MUo9U4gA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/search/searchcursor.min.js" integrity="sha512-V3X0aqn2Pdod3PeyaJc9zP0IZ14eAdAuX07WFh/ld2M8PyhNgWnPJgZUTMJJSizrt7HGzld4ZLnRJC5dn5hzUA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/dialog/dialog.min.js" integrity="sha512-nzKB7Y9JFiPYX8Poz3T2vl2+/hBQYTBboXy/0gK0W0ipjtz4z6Di52EGrf5fgQuSIXKkHQ0sh1YsqBIzTz+EBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/search/matchesonscrollbar.min.js" integrity="sha512-DbF4B12b/ETtqT45q1n2E7HhQv2FKLIwHTpRyYxgGaCykK5vR74X34I1pGXd3sUbtUGmt69ly0QevUPxoJvEHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-CX8cE33/hju/lR8P8Hw8ZWqALrX95gxdaa6uwZsX7UPTg79RpI2TUM4nqdX1GLmFsyzsu3SANZlvfaQY4peGMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
